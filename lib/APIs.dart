@@ -11,27 +11,10 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 class APIs {
   static const API_URL = Constant.API_URL;
-  static Future<void> createAndDownloadPdf(BuildContext context,nameController, surnameController, emailController,
+  static Future<void> createAndDownloadPdf(context,nameController, surnameController, emailController,
       numberController, refController, typeController, wilayaController, centreController,
       dateController, PostalCodeController) async {
     try {
-      // Validate form fields
-      if (nameController.text.isEmpty ||
-          surnameController.text.isEmpty ||
-          emailController.text.isEmpty ||
-          numberController.text.isEmpty ||
-          refController.text.isEmpty ||
-          typeController.text.isEmpty ||
-          wilayaController.text.isEmpty ||
-          centreController.text.isEmpty ||
-          dateController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please fill in all the required fields.'),
-          ),
-        );
-        return; // Stop further processing if any field is empty
-      }
       final response = await http.post(
         Uri.parse('${API_URL}/EmailGenerator/createPDF/BonV1'),
         headers: {
@@ -53,6 +36,7 @@ class APIs {
       );
 
       if (response.statusCode != 200) {
+        Navigator.pop(context);
         throw Exception('Error generating PDF');
       }
       if (response.statusCode == 200) {
@@ -107,6 +91,7 @@ class APIs {
      } else {
        // Handle the error in case of an unsuccessful request
        var responseMessage = json.decode(response.body)['message'];
+       Navigator.pop(context);
        ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
            content: Text('${responseMessage}'),
@@ -149,6 +134,7 @@ class APIs {
         );
       } else {
         var responseMessage = json.decode(response.body)['message'];
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${responseMessage}'),

@@ -139,6 +139,22 @@ class OpenTicket extends StatelessWidget {
                                 InkWell(
                                   child: ValiderButton(),
                                   onTap: () async {
+                                    if (nameController.text.isEmpty ||
+                                        surnameController.text.isEmpty ||
+                                        emailController.text.isEmpty ||
+                                        numberController.text.isEmpty ||
+                                        refController.text.isEmpty ||
+                                        typeController.text.isEmpty ||
+                                        wilayaController.text.isEmpty ||
+                                        centreController.text.isEmpty ||
+                                        dateController.text.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Please fill in all the required fields.'),
+                                        ),
+                                      );
+                                      return; // Stop further processing if any field is empty
+                                    }
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
@@ -155,6 +171,7 @@ class OpenTicket extends StatelessWidget {
                                           numberController, refController, typeController, wilayaController, centreController,
                                           dateController, PostalCodeController);
                                     }
+                                    Navigator.pop(context);
                                   },
                                 ),
                                 const SizedBox(height: 10),
