@@ -6,7 +6,6 @@ class SavSelect extends StatelessWidget {
   final String title;
   final List<dynamic> items;
   final TextEditingController controller;
-
   SavSelect({
     Key? key,
     required this.hint,
@@ -17,8 +16,6 @@ class SavSelect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> Data = items.map((item) => item["Region"] as String).toList();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -35,14 +32,22 @@ class SavSelect extends StatelessWidget {
             ),
           ),
         ),
-        DropdownSearch<String>(
+        DropdownSearch<dynamic>(
           popupProps: PopupProps.menu(
             showSelectedItems: true,
             showSearchBox: true,
           ),
-          items: Data,
+          items: items,
+          itemAsString: (item) => (item as Map<String, dynamic>?)?["Region"] as String? ?? "",
+          compareFn: (item, selectedItem) {
+            final itemNom = (item as Map<String, dynamic>?)?["Region"] as String?;
+            final selectedItemNom = (selectedItem as Map<String, dynamic>?)?["Region"] as String?;
+            return itemNom == selectedItemNom;
+          },
           onChanged: (value) {
-            controller.text = value!;
+            final selectedMap = value as Map<String, dynamic>?;
+            final region = selectedMap?["Region"] as String?;
+            controller.text = region ?? "";
           },
           dropdownDecoratorProps: DropDownDecoratorProps(
             dropdownSearchDecoration: InputDecoration(

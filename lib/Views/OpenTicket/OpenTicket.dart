@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:stream_app_mobile_new/APIs.dart';
 import 'package:stream_app_mobile_new/Views/GlobaleComponents/InputTextField.dart';
 import 'package:stream_app_mobile_new/Views/GlobaleComponents/CancelButton.dart';
 import 'package:stream_app_mobile_new/Views/Home/Home.dart';
@@ -11,18 +12,19 @@ import 'package:stream_app_mobile_new/Views/OpenTicket/Components/ValiderButton.
 import 'package:stream_app_mobile_new/Views/OpenTicket/Components/WillayaSelect.dart';
 
 class OpenTicket extends StatelessWidget {
-  OpenTicket({super.key});
-
-   final nameController=TextEditingController();
-  final surnameController=TextEditingController();
-  final emailController=TextEditingController();
-  final numberController=TextEditingController();
-  final refController=TextEditingController();
-  final typeController=TextEditingController();
-  final wilayaController=TextEditingController();
-  final PostalCodeController=TextEditingController();
-  final centreController=TextEditingController();
-  final dateController=TextEditingController();
+  OpenTicket({Key? key}) : super(key: key) {
+    _initializeData();
+  }
+  final nameController = TextEditingController();
+  final surnameController = TextEditingController();
+  final emailController = TextEditingController();
+  final numberController = TextEditingController();
+  final refController = TextEditingController();
+  final typeController = TextEditingController();
+  final wilayaController = TextEditingController();
+  final PostalCodeController = TextEditingController();
+  final centreController = TextEditingController();
+  final dateController = TextEditingController();
   List<dynamic> ProductData = <dynamic>[];
   List<dynamic> WilayaData = <dynamic>[];
   List<dynamic> SavData = <dynamic>[];
@@ -52,10 +54,19 @@ class OpenTicket extends StatelessWidget {
     'Trait sur écran (horizontal)',
     'Autres',
   ];
-  bool isProcessing = false;
+  Future<void> _initializeData() async {
+    try {
+      ProductData.addAll(await APIs.GetProductData());
+      WilayaData.addAll(await APIs.GetWilayaData());
+      SavData.addAll(await APIs.GetSavData());
+    } catch (e) {
+      print('Error initializing data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    bool isProcessing = false;
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 238, 238, 238),
       body: Stack(
@@ -128,7 +139,22 @@ class OpenTicket extends StatelessWidget {
                                 InkWell(
                                   child: ValiderButton(),
                                   onTap: () async {
-                                    createAndDownloadPdf();
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Veuillez être patient jusqu\'à la fin de ce processus...'),
+                                          content: CircularProgressIndicator(),
+                                        );
+                                      },
+                                    );
+                                    // Call the GetSavData function and await its result
+                                    if(!PostalCodeController.text.isEmpty){
+                                      await APIs.createAndDownloadPdf(context,nameController, surnameController, emailController,
+                                          numberController, refController, typeController, wilayaController, centreController,
+                                          dateController, PostalCodeController);
+                                    }
                                   },
                                 ),
                                 const SizedBox(height: 10),
@@ -140,9 +166,7 @@ class OpenTicket extends StatelessWidget {
                                         PageTransition(
                                             type: PageTransitionType.leftToRight,
                                             duration: Duration.zero,
-
                                             child: Home())
-
                                     );
                                   },
                                 )
@@ -156,27 +180,6 @@ class OpenTicket extends StatelessWidget {
               ],
             ),
           ),
-          if (isProcessing) // Show circular progress indicator
-            Container(
-              color: Colors.white.withOpacity(1.0), // White background with full opacity
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text(
-                    'Veuillez être patient jusqu\'à la fin de ce processus...',
-                    style: TextStyle(
-                      color: Colors.red, // Red text color
-                      fontSize: 15, // Font size 22
-                      fontWeight: FontWeight.bold, // Bold text
-                    ),
-                  ),
-                ],
-              ),
-            )
         ],
       ),
     );

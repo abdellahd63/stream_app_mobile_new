@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:stream_app_mobile_new/APIs.dart';
 import 'package:stream_app_mobile_new/Views/GlobaleComponents/CancelButton.dart';
 import 'package:stream_app_mobile_new/Views/Home/Home.dart';
 import 'package:stream_app_mobile_new/Views/MyTicket/Components/TelechargerButton.dart';
 
 class Recep extends StatelessWidget {
-  const Recep({super.key});
-
+  final Map<String, dynamic> PanneData;
+  Recep({super.key, required this.PanneData});
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -69,7 +70,7 @@ class Recep extends StatelessWidget {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child:Center(
                                 child: Text(
-                                '${widget.PanneData['Nom']+" "+widget.PanneData['Prenom']}',
+                                '${PanneData['Nom']+" "+PanneData['Prenom']}',
                                 style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black,
@@ -100,7 +101,7 @@ class Recep extends StatelessWidget {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child:Center(
                                 child: Text(
-                                '${widget.PanneData['Telephone']}',
+                                '${PanneData['Telephone']}',
                                 style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black,
@@ -131,7 +132,7 @@ class Recep extends StatelessWidget {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child:Center(
                                 child: Text(
-                                '${widget.PanneData['ReferanceProduit']}',
+                                '${PanneData['ReferanceProduit']}',
                                 style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black,
@@ -162,7 +163,7 @@ class Recep extends StatelessWidget {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child:Center(
                                 child: Text(
-                                '${widget.PanneData['TypePanne']}',
+                                '${PanneData['TypePanne']}',
                                 style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black,
@@ -193,7 +194,7 @@ class Recep extends StatelessWidget {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child:Center(
                                 child: Text(
-                                '${formatDate(widget.PanneData['DateDepot'].toString())}',
+                                '${APIs.formatDate(PanneData['DateDepot'].toString())}',
                                 style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black,
@@ -224,7 +225,7 @@ class Recep extends StatelessWidget {
                               verticalAlignment: TableCellVerticalAlignment.middle,
                               child:Center(
                                 child: Text(
-                                '${"SAV "+widget.PanneData['CentreDepot']}',
+                                '${"SAV "+PanneData['CentreDepot']}',
                                 style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black,
@@ -240,9 +241,22 @@ class Recep extends StatelessWidget {
                 InkWell(
                   child: TelechargerButton(
                   ),
-                  onTap: () {
+                  onTap: () async {
                     //Telechargement du bon
-                    downloadPDFFile('${widget.PanneData['BDPDFfile']}');
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Veuillez être patient jusqu\'à la fin de ce processus...'),
+                          content: CircularProgressIndicator(),
+                        );
+                      },
+                    );
+                    // Call the GetSavData function and await its result
+                    if(!PanneData['BDPDFfile'].toString().isEmpty){
+                      await APIs.downloadPDFFile(context,PanneData['BDPDFfile']);
+                    }
                   },
                 ),
                  const SizedBox(height: 10),
@@ -260,27 +274,6 @@ class Recep extends StatelessWidget {
           ),
           ),
         ),
-          if (isProcessing) // Show circular progress indicator
-            Container(
-              color: Colors.white.withOpacity(1.0), // White background with full opacity
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text(
-                    'Veuillez être patient jusqu\'à la fin de ce processus...',
-                    style: TextStyle(
-                      color: Colors.red, // Red text color
-                      fontSize: 15, // Font size 22
-                      fontWeight: FontWeight.bold, // Bold text
-                    ),
-                  ),
-                ],
-              ),
-            )
         ]
       ),
 

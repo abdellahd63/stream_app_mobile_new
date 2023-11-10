@@ -17,8 +17,6 @@ class RefProductSelect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> Data = items.map((item) => item["ReferanceProduit"] as String).toList();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -35,14 +33,22 @@ class RefProductSelect extends StatelessWidget {
             ),
           ),
         ),
-        DropdownSearch<String>(
+        DropdownSearch<dynamic>(
           popupProps: PopupProps.menu(
             showSelectedItems: true,
             showSearchBox: true,
           ),
-          items: Data,
+          items: items,
+          itemAsString: (item) => (item as Map<String, dynamic>?)?["ReferanceProduit"] as String? ?? "",
+          compareFn: (item, selectedItem) {
+            final itemNom = (item as Map<String, dynamic>?)?["ReferanceProduit"] as String?;
+            final selectedItemNom = (selectedItem as Map<String, dynamic>?)?["ReferanceProduit"] as String?;
+            return itemNom == selectedItemNom;
+          },
           onChanged: (value) {
-            controller.text = value!;
+            final selectedMap = value as Map<String, dynamic>?;
+            final referanceProduit = selectedMap?["ReferanceProduit"] as String?;
+            controller.text = referanceProduit ?? "";
           },
           dropdownDecoratorProps: DropDownDecoratorProps(
             dropdownSearchDecoration: InputDecoration(

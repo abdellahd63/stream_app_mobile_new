@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:stream_app_mobile_new/APIs.dart';
 
 class Suivremonproduit extends StatelessWidget {
-  const Suivremonproduit({super.key});
-
+  final Map<String, dynamic> PanneData;
+  Suivremonproduit({super.key, required this.PanneData});
+  String progression = '';
+  String Progression(val)  {
+    if(val == 0) {
+      progression = "Produit en attente de depot";
+    }else if(val == 1) {
+      progression = "Produit a été déposée";
+    }else if(val == 2) {
+      progression = "Produit en reparation au centre";
+    }else if(val == 3) {
+      progression = "Produit réparée";
+    }else if(val == 4) {
+      progression = "Produit en attente de pickup";
+    }else if(val == 5) {
+      progression = "Produit livrée";
+    }
+    return progression;
+  }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey[200],
@@ -39,7 +58,7 @@ class Suivremonproduit extends StatelessWidget {
                     CircularPercentIndicator(
                       radius: 100.0,
                       lineWidth: 15.0,
-                      percent: widget.PanneData['Progres']*2/10,
+                      percent: PanneData['Progres']*2/10,
                       header: Padding(
                         padding: const EdgeInsets.symmetric(vertical:10.0),
                           child: new Text("Progression",
@@ -59,7 +78,7 @@ class Suivremonproduit extends StatelessWidget {
                     const SizedBox(height: 25),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                      child: Text('${Progression(widget.PanneData['Progres'])}',
+                      child: Text('${Progression(PanneData['Progres'])}',
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         style: TextStyle(
@@ -107,7 +126,7 @@ class Suivremonproduit extends StatelessWidget {
                                 verticalAlignment: TableCellVerticalAlignment.middle,
                                 child:Center(
                                   child: Text(
-                                  '${widget.PanneData['Nom']+" "+widget.PanneData['Prenom']}',
+                                  '${PanneData['Nom']+" "+PanneData['Prenom']}',
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Colors.black,
@@ -138,7 +157,7 @@ class Suivremonproduit extends StatelessWidget {
                                 verticalAlignment: TableCellVerticalAlignment.middle,
                                 child:Center(
                                   child: Text(
-                                  '${widget.PanneData['Telephone']}',
+                                  '${PanneData['Telephone']}',
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Colors.black,
@@ -171,7 +190,7 @@ class Suivremonproduit extends StatelessWidget {
                                 child:Center(
                                   child: Text(
                                 
-                                  '${widget.PanneData['ReferanceProduit']}',
+                                  '${PanneData['ReferanceProduit']}',
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Colors.black,
@@ -202,7 +221,7 @@ class Suivremonproduit extends StatelessWidget {
                                 verticalAlignment: TableCellVerticalAlignment.middle,
                                 child:Center(
                                   child: Text(
-                                  '${widget.PanneData['TypePanne']}',
+                                  '${PanneData['TypePanne']}',
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Colors.black,
@@ -233,8 +252,7 @@ class Suivremonproduit extends StatelessWidget {
                                 verticalAlignment: TableCellVerticalAlignment.middle,
                                 child:Center(
                                   child: Text(
-                                  '${formatDate(widget.PanneData['DateDepot'].toString())}',
-                                  style: TextStyle(
+                                  '${APIs.formatDate(PanneData['DateDepot'].toString())}',                                  style: TextStyle(
                                     fontSize: 17,
                                     color: Colors.black,
                                   ),
@@ -264,7 +282,7 @@ class Suivremonproduit extends StatelessWidget {
                                 verticalAlignment: TableCellVerticalAlignment.middle,
                                 child:Center(
                                   child: Text(
-                                  '${"SAV "+widget.PanneData['CentreDepot']}',
+                                  '${"SAV "+PanneData['CentreDepot']}',
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Colors.black,

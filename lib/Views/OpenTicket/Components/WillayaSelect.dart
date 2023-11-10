@@ -50,7 +50,7 @@ class WillayaSelect extends StatelessWidget {
           onChanged: (value) {
             if (value != null && value is Map<String, dynamic>) {
               controller.text = value["Nom"] as String? ?? "";
-              code.text = value["code"].toString() ?? "";
+              code.text = value["code"].toString().isNotEmpty ? value["code"].toString() : "50";
             }
           },
           dropdownDecoratorProps: DropDownDecoratorProps(

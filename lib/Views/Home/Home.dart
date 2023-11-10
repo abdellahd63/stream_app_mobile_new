@@ -5,22 +5,13 @@ import 'package:stream_app_mobile_new/Views/GlobaleComponents/InputTextField.dar
 import 'package:stream_app_mobile_new/Views/Home/Components/ListRow.dart';
 import 'package:stream_app_mobile_new/Views/OpenTicket/OpenTicket.dart';
 
-class Home extends StatelessWidget {
-  Home({super.key});
+import '../../APIs.dart';
 
-  List<dynamic> SavData = <dynamic>[];
-  List<dynamic> FiltredSavData = <dynamic>[];
+class Home extends StatelessWidget {
+  Home({Key? key});
+
   final NumBonController = TextEditingController();
   ScrollController _scrollController = new ScrollController();
-
-   void updatelist(String value) {
-    setState(() {
-      FiltredSavData = SavData
-          .where((item) =>
-          item['Region'].toLowerCase().contains(value.toLowerCase()))
-          .toList();
-    });
-  }
   void scrolltotop() {
     _scrollController.animateTo(
       0.0,
@@ -29,12 +20,9 @@ class Home extends StatelessWidget {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    GetSavData();
+  Future<List<dynamic>> _fetchData() async {
+    return await APIs.GetSavData();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,18 +53,13 @@ class Home extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               //5ans de garentire
-
               //Ouvrir un ticket button
-
               Material(
                 elevation: 10,
                 color: Colors.transparent,
                 child: Container(
                   padding: EdgeInsets.all(19),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(20),
-                          bottomRight: Radius.circular(20)),
                       gradient: LinearGradient(
                           colors: [Color(0xffb92b27), Color(0xff1565C0)])),
                   child: Center(
@@ -157,7 +140,6 @@ class Home extends StatelessWidget {
                             ),
                           ),
                           onTap: () {
-                            //hna dir functionnement ta3 button
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
@@ -237,8 +219,19 @@ class Home extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-                                              onTap: () {
-                                                GetPanneByBD();
+                                              onTap: () async {
+                                                showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: Text('Veuillez être patient jusqu\'à la fin de ce processus...'),
+                                                      content: CircularProgressIndicator(),
+                                                    );
+                                                  },
+                                                );
+                                                await APIs.GetPanneByBD(context, NumBonController.text.toString());
+                                                Navigator.pop(context);
                                               },
                                             ),
                                           ),
@@ -283,45 +276,69 @@ class Home extends StatelessWidget {
                             ),
                           ),
                         ),
-                        TextField(
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Color.fromARGB(62, 255, 255, 255),
-                            hintText: 'ex : ALGER',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide.none,
-                            ),
-                            prefixIcon: Icon(CupertinoIcons.search),
-                            prefixIconColor: Colors.white,
-                          ),
-                          onChanged: (value) => {updatelist(value)},
+                        FutureBuilder<List<dynamic>>(
+                          future: _fetchData(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              List<dynamic> savData = snapshot.data!;
+                              List<dynamic> filteredSavData = List.from(savData);
+                              return Column(
+                                children: [
+                                  TextField(
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Color.fromARGB(62, 255, 255, 255),
+                                      hintText: 'ex : ALGER',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      prefixIcon: Icon(CupertinoIcons.search),
+                                      prefixIconColor: Colors.white,
+                                    ),
+                                    onChanged: (value) {
+                                      // Update the UI based on the filtered list
+                                      filteredSavData = savData
+                                          .where((item) =>
+                                          item['Region'].toLowerCase().contains(value.toLowerCase()))
+                                          .toList();
+                                      print(filteredSavData);
+                                    },
+
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                    child: ListView.builder(
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemCount: filteredSavData.length,
+                                      itemBuilder: (context, index) {
+                                        return ListRow(
+                                          City: filteredSavData[index]['Region'] ?? '',
+                                          Phone: filteredSavData[index]['Telephone'] ?? '',
+                                          adresse: filteredSavData[index]['Adresse'] ?? '',
+                                          Url: filteredSavData[index]['Localisation'] ?? '',
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                          },
                         )
                       ],
                     ),
                   ),
                 ),
               ),
-
               //list Sav
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Expanded(
-                  child: ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: FiltredSavData.length,
-                      itemBuilder: (context, index) {
-                        return ListRow(
-                            City: FiltredSavData[index]['Region'],
-                            Phone: FiltredSavData[index]['Telephone'],
-                            adresse: FiltredSavData[index]['Adresse'] ?? '',
-                            Url: FiltredSavData[index]['Localisation']);
-                      }),
-                ),
-              )
-            ]),
+        ]),
       ),
     );
   }
