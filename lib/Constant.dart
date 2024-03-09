@@ -1,3 +1,3 @@
 class Constant{
-  static const API_URL = 'http://localhost:8000';
+  static const API_URL = 'https://sav-v2.streamsystem.com';
 }

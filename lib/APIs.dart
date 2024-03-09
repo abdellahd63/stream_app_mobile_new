@@ -84,7 +84,7 @@ class APIs {
          context,
          PageTransition(
            type: PageTransitionType.rightToLeft,
-           duration: Duration(milliseconds: 300),
+           duration: Duration.zero,
            child: Recep(PanneData: responsePanneData),
          ),
        );
@@ -105,6 +105,7 @@ class APIs {
   static Future<void> GetPanneByBD(BuildContext context, NumBonController) async {
     try {
       if(NumBonController.isEmpty){
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('s\'il vous plaît entrer le numero de votre bon de depot'),
@@ -127,8 +128,7 @@ class APIs {
             PageTransition(
                 type: PageTransitionType
                     .bottomToTop,
-                duration: Duration(
-                    milliseconds: 300),
+                duration: Duration.zero,
                 child: Suivremonproduit(PanneData: responsePanneData)
             )
         );

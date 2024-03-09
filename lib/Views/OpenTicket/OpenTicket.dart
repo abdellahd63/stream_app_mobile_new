@@ -150,7 +150,7 @@ class OpenTicket extends StatelessWidget {
                                         dateController.text.isEmpty) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('Please fill in all the required fields.'),
+                                          content: Text('Tous les champs doivent être remplis.'),
                                         ),
                                       );
                                       return; // Stop further processing if any field is empty
@@ -161,17 +161,20 @@ class OpenTicket extends StatelessWidget {
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           title: Text('Veuillez être patient jusqu\'à la fin de ce processus...'),
-                                          content: CircularProgressIndicator(),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CircularProgressIndicator(),
+                                            ],
+                                          ),
                                         );
                                       },
                                     );
-                                    // Call the GetSavData function and await its result
                                     if(!PostalCodeController.text.isEmpty){
                                       await APIs.createAndDownloadPdf(context,nameController, surnameController, emailController,
                                           numberController, refController, typeController, wilayaController, centreController,
                                           dateController, PostalCodeController);
                                     }
-                                    Navigator.pop(context);
                                   },
                                 ),
                                 const SizedBox(height: 10),

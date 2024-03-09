@@ -249,7 +249,12 @@ class Recep extends StatelessWidget {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text('Veuillez être patient jusqu\'à la fin de ce processus...'),
-                          content: CircularProgressIndicator(),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(),
+                            ],
+                          ),
                         );
                       },
                     );
